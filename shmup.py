@@ -34,9 +34,9 @@ class Player(pygame.sprite.Sprite):
         self.speedx = 0
         keystate = pygame.key.get_pressed()
         if keystate[pygame.K_LEFT]:
-            self.speedx = -5
+            self.speedx = -8
         if keystate[pygame.K_RIGHT]:
-            self.speedx = 5
+            self.speedx = 8
         self.rect.x += self.speedx
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
@@ -44,8 +44,36 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
 
 
+class Mob(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((30, 40))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(0, WIDTH - self.rect.width)
+        self.rect.y = random.randrange(-100, -40)
+        self.speedy = random.randrange(1, 8)
+        self.speedx = random.randrange(-3, 3)
+
+    def update(self):
+        self.rect.y += self.speedy
+        self.rect.x += self.speedx
+
+        if self.rect.top > HEIGHT + 10 or self.rect.left < -25 or self.rect.right > WIDTH + 25:
+            self.rect.x = random.randrange(0, WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-100, -40)
+            self.speedy = random.randrange(1, 8)
+
+
 all_sprites = pygame.sprite.Group()
+mobs = pygame.sprite.Group()
 player = Player()
+
+for i in range(8):
+    mob = Mob()
+    all_sprites.add(mob)
+    mobs.add(mob)
+
 all_sprites.add(player)
 
 running = True
