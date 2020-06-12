@@ -34,6 +34,24 @@ def draw_text(surface, text, size, x, y):
     surface.blit(text_surface, text_rect)
 
 
+def draw_shield_bar(surface, x, y, percentage):
+    if percentage < 0:
+        percentage = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = percentage / 100 * BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    pygame.draw.rect(surface, GREEN, fill_rect)
+    pygame.draw.rect(surface, WHITE, outline_rect, 2)
+
+
+def new_mob():
+    mob = Mob()
+    all_sprites.add(mob)
+    mobs.add(mob)
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -44,6 +62,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
         self.speedx = 0
+        self.shield = 100
 
     def update(self):
         self.speedx = 0
@@ -156,9 +175,7 @@ bullets = pygame.sprite.Group()
 player = Player()
 
 for i in range(8):
-    mob = Mob()
-    all_sprites.add(mob)
-    mobs.add(mob)
+    new_mob()
 
 all_sprites.add(player)
 
@@ -183,21 +200,22 @@ while running:
     for hit in bullet_hits:
         random.choice(explosion_sounds).play()
         score += 50 - hit.radius
-        mob = Mob()
-        all_sprites.add(mob)
-        mobs.add(mob)
+        new_mob()
 
     # check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
-
-    if hits:
-        running = False
+    hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
+    for hit in hits:
+        player.shield -= hit.radius
+        new_mob()
+        if player.shield <= 0:
+            running = False
 
     # draw / render
     screen.fill(BLACK)
     screen.blit(background, background_rect)
     all_sprites.draw(screen)
     draw_text(screen, str(score), 18, WIDTH / 2, 10)
+    draw_shield_bar(screen, 5, 5, player.shield)
     # after drawing everything flip the display
     pygame.display.flip()
 
