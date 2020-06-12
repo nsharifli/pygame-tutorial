@@ -22,6 +22,16 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Shmup!")
 clock = pygame.time.Clock()
 
+font_name = pygame.font.match_font('arial')
+
+
+def draw_text(surface, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, WHITE)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surface.blit(text_surface, text_rect)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -116,7 +126,15 @@ background_rect = background.get_rect()
 player_img = pygame.image.load(path.join(img_dir, "playerShip3_red.png")).convert()
 bullet_img = pygame.image.load(path.join(img_dir, "laserRed16.png")).convert()
 meteor_images = []
-meteor_list = ["meteor1.png", "meteor2.png", "meteor3.png", "meteor4.png", "meteor5.png"]
+meteor_list = [
+    "meteorBrown_big1.png",
+    "meteorBrown_big2.png",
+    "meteorBrown_med1.png",
+    "meteorBrown_med3.png",
+    "meteorBrown_small1.png",
+    "meteorBrown_small2.png",
+    "meteorBrown_tiny1.png"
+]
 for img in meteor_list:
     meteor_images.append(pygame.image.load(path.join(img_dir, img)).convert())
 
@@ -132,6 +150,7 @@ for i in range(8):
 
 all_sprites.add(player)
 
+score = 0
 running = True
 while running:
     # keep loop running at the right speed
@@ -149,6 +168,7 @@ while running:
     # check to see if a bullet hit a mob
     bullet_hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in bullet_hits:
+        score += 50 - hit.radius
         mob = Mob()
         all_sprites.add(mob)
         mobs.add(mob)
@@ -163,6 +183,7 @@ while running:
     screen.fill(BLACK)
     screen.blit(background, background_rect)
     all_sprites.draw(screen)
+    draw_text(screen, str(score), 18, WIDTH / 2, 10)
     # after drawing everything flip the display
     pygame.display.flip()
 
