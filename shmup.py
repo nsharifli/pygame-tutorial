@@ -56,13 +56,13 @@ class Player(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image_orig = mob_img
+        self.image_orig = random.choice(meteor_images)
         self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * .9 / 2)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
-        self.rect.y = random.randrange(-100, -40)
+        self.rect.y = random.randrange(-150, -100)
         self.speedy = random.randrange(1, 8)
         self.speedx = random.randrange(-3, 3)
 
@@ -76,8 +76,11 @@ class Mob(pygame.sprite.Sprite):
         if now - self.last_update > 50:
             self.last_update = now
             self.rotation = (self.rotation + self.rotation_speed) % 360
-            self.image = pygame.transform.rotate(self.image_orig, self.rotation)
-
+            new_image = pygame.transform.rotate(self.image_orig, self.rotation)
+            old_center = self.rect.center
+            self.image = new_image
+            self.rect = self.image.get_rect()
+            self.rect.center = old_center
 
     def update(self):
         self.rotate()
@@ -111,9 +114,11 @@ class Bullet(pygame.sprite.Sprite):
 background = pygame.image.load(path.join(img_dir, "background.png")).convert()
 background_rect = background.get_rect()
 player_img = pygame.image.load(path.join(img_dir, "playerShip3_red.png")).convert()
-mob_img = pygame.image.load(path.join(img_dir, "meteorBrown_med1.png")).convert()
 bullet_img = pygame.image.load(path.join(img_dir, "laserRed16.png")).convert()
-
+meteor_images = []
+meteor_list = ["meteor1.png", "meteor2.png", "meteor3.png", "meteor4.png", "meteor5.png"]
+for img in meteor_list:
+    meteor_images.append(pygame.image.load(path.join(img_dir, img)).convert())
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
